@@ -38,6 +38,7 @@ class _mailchimp:
         
         try:
             self._audience = self._client.lists.create(data=aude_list)
+            print(self._audience)
         except Exception as error:
             self._audience_creation_errorText = error
     
@@ -70,6 +71,13 @@ class _mailchimp:
         }
         
         self._campaign = self._client.campaigns.create(data=data)
+    
+    def _save(self, path: str):
+        with open(path, 'w') as file:
+            file.write(f"api:{self._api_key}\n")
+            file.write(f"username:{self._username}\n")
+            for key, value in self._audience_creation_dictionary.items():
+                file.write(f"{key}:{value}\n")
     
     def _send(self):
         try:

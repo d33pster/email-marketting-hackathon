@@ -4,16 +4,17 @@
 from tkinter import *
 from tkinter import ttk
 from modules._List import _list
-from modules._mailchimp import _mailchimp
+from modules._mailchimp2 import mailchimp
 import pandas as pd
 from os.path import exists as there
 from os import remove
 from tkcalendar import Calendar
-import multiprocessing
 from datetime import datetime
+from platform import system as getos
 
 class generate:
     def __init__(self, master: Tk, title: str):
+        self._os = getos()
         self.parent = master
         # title
         self._title = title
@@ -49,7 +50,7 @@ class generate:
                 self._campaignTreeData.append(tuple((self._campaignDataFrame['ID'][index], self._campaignDataFrame['Campaigns'][index])))
         
         # create mailchimp object
-        self._mailchimp = _mailchimp()
+        self._mailchimp = mailchimp()
     
     def _reinitialize(self):
         for widget in self._EnclosingFrame.winfo_children():
@@ -79,7 +80,7 @@ class generate:
                 self._campaignTreeData.append(tuple((self._campaignDataFrame['ID'][index], self._campaignDataFrame['Campaigns'][index])))
         
         # create mailchimp object
-        self._mailchimp = _mailchimp()
+        self._mailchimp = mailchimp()
     
     def _destroy(self):
         self.parent.destroy()
@@ -161,42 +162,48 @@ class generate:
         self._campaigNameLabel.place(relx=0.23, rely=0.14, anchor='center')
         self._campaigNameEntry = ttk.Entry(self._campaignRightFrame, width=20)
         self._campaigNameEntry.place(relx=0.65, rely=0.14, anchor='center')
+        # campaign subject name:
+        self._campaignSubjectLabel = ttk.Label(self._campaignRightFrame, text='Subject:')
+        self._campaignSubjectLabel.place(relx=0.23, rely=0.2, anchor='center')
+        self._campaignSubjectEntry = ttk.Entry(self._campaignRightFrame, width=20)
+        self._campaignSubjectEntry.place(relx=0.65, rely=0.2, anchor="center")
         
         # a label for company details
         self._CompanyLabel = ttk.Label(self._campaignRightFrame, text='Company Details', font='Helvetica 11 bold')
-        self._CompanyLabel.place(relx=0.5, rely=0.27, anchor='center')
+        self._CompanyLabel.place(relx=0.5, rely=0.30, anchor='center')
         # enter company name
         self._companyNameLabel = ttk.Label(self._campaignRightFrame, text='Company name:')
-        self._companyNameLabel.place(relx=0.23, rely=0.32, anchor='center')
+        self._companyNameLabel.place(relx=0.23, rely=0.38, anchor='center')
         self._companyNameEntry = ttk.Entry(self._campaignRightFrame, width=20)
-        self._companyNameEntry.place(relx=0.65, rely=0.32, anchor='center')
+        self._companyNameEntry.place(relx=0.65, rely=0.38, anchor='center')
         # enter Company Address
         self._companyAddressLabel = ttk.Label(self._campaignRightFrame, text='Company Address:')
-        self._companyAddressLabel.place(relx=0.23, rely=0.39, anchor='center')
+        self._companyAddressLabel.place(relx=0.23, rely=0.45, anchor='center')
         self._companyAddressEntry = ttk.Entry(self._campaignRightFrame, width=20)
-        self._companyAddressEntry.place(relx=0.67, rely=0.39, anchor='center')
+        self._companyAddressEntry.place(relx=0.67, rely=0.45, anchor='center')
         # enter company city and state
         self._companyCityLabel = ttk.Label(self._campaignRightFrame, text='City:')
-        self._companyCityLabel.place(relx=0.08, rely=0.46, anchor='center')
+        self._companyCityLabel.place(relx=0.08, rely=0.52, anchor='center')
         self._companyCityEntry = ttk.Entry(self._campaignRightFrame, width=12)
-        self._companyCityEntry.place(relx=0.3, rely=0.46, anchor='center')
+        self._companyCityEntry.place(relx=0.3, rely=0.52, anchor='center')
         self._companyStateLabel = ttk.Label(self._campaignRightFrame, text='State:')
-        self._companyStateLabel.place(relx=0.52, rely=0.46, anchor='center')
+        self._companyStateLabel.place(relx=0.52, rely=0.52, anchor='center')
         self._companyStateEntry = ttk.Entry(self._campaignRightFrame, width=12)
-        self._companyStateEntry.place(relx=0.75, rely=0.46, anchor='center')
+        self._companyStateEntry.place(relx=0.75, rely=0.52, anchor='center')
         # enter country and zipcode
         self._companyCountryLabel = ttk.Label(self._campaignRightFrame, text='Country:')
-        self._companyCountryLabel.place(relx=0.10, rely=0.53, anchor='center')
+        self._companyCountryLabel.place(relx=0.10, rely=0.59, anchor='center')
         self._companyCountryEntry = ttk.Entry(self._campaignRightFrame, width=11)
-        self._companyCountryEntry.place(relx=0.33, rely=0.53, anchor='center')
+        self._companyCountryEntry.place(relx=0.33, rely=0.59, anchor='center')
         self._companyZipLabel = ttk.Label(self._campaignRightFrame, text='Zip code:')
-        self._companyZipLabel.place(relx=0.57, rely=0.53, anchor='center')
+        self._companyZipLabel.place(relx=0.57, rely=0.59, anchor='center')
         self._companyZipEntry = ttk.Entry(self._campaignRightFrame, width=9)
-        self._companyZipEntry.place(relx=0.79, rely=0.53, anchor='center')
+        self._companyZipEntry.place(relx=0.79, rely=0.59, anchor='center')
         # give a check box to save the company details for next time
-        self._saveCompanyDetailsCB_choice = BooleanVar()
-        self._saveCompanyDetailsCB = ttk.Checkbutton(self._campaignRightFrame, variable=self._saveCompanyDetailsCB_choice,  text='Save company details for future', onvalue=True, offvalue=False)
-        self._saveCompanyDetailsCB.place(relx=0.5, rely=0.62, anchor='center')
+        # self._saveCompanyDetailsCB_choice = BooleanVar()
+        # self._saveCompanyDetailsCB = ttk.Checkbutton(self._campaignRightFrame, variable=self._saveCompanyDetailsCB_choice,  text='Save company details for future', onvalue=True, offvalue=False)
+        # self._saveCompanyDetailsCB.place(relx=0.5, rely=0.62, anchor='center')
+        
         # a label for other details
         self._otherLabel = ttk.Label(self._campaignRightFrame, text='Other Details', font='Helvetica 11 bold')
         self._otherLabel.place(relx=0.5, rely=0.71, anchor='center')
@@ -242,6 +249,23 @@ class generate:
         self._calendar = Calendar(self._scheduleFirstFrame, selectmode='day', year=2024, month=3, day=4, bordercolor='black', selectforeground='red', foreground='black', background='white')
         self._calendar.place(relx=0.25, rely=0.5, anchor='center')
         
+        # create time selector        
+        # month
+        self._hour = StringVar()
+        self._hours = [
+            '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17',
+            '18', '19', '20', '21', '22', '23', '24'
+        ]
+        self._hourDropdown = ttk.OptionMenu(self._scheduleFirstFrame, self._hour, 'Select Hour', *self._hours)
+        self._hourDropdown.place(relx=0.17, rely=0.8, anchor='center', relwidth=0.3)
+        
+        self._minute = StringVar()
+        self._minutes = [
+            '00', '15', '30', '45', '60'
+        ]
+        self._minuteDropdown = ttk.OptionMenu(self._scheduleFirstFrame, self._minute, 'Select Minutes', *self._minutes)
+        self._minuteDropdown.place(relx=0.5, rely=0.8, anchor='center', relwidth=0.3)
+        
         # create a button frame
         self._scheduleButtonFrame = ttk.Frame(self._scheduleEnclosingFrame)
         self._scheduleButtonFrame.pack(fill=BOTH)
@@ -282,17 +306,12 @@ class generate:
         # add entry
         self._top_mailchimp_apiEntry = ttk.Entry(self._top_mailchimp_EnclosingFrame, width=25)
         self._top_mailchimp_apiEntry.place(relx=0.59, rely=0.3, anchor='center')
-        # add username label
-        self._top_mailchimp_usernameLabel = ttk.Label(self._top_mailchimp_EnclosingFrame, text='username:')
-        self._top_mailchimp_usernameLabel.place(relx=0.32, rely=0.51, anchor='center')
-        # add username entry
-        self._top_mailchimp_usernameEntry = ttk.Entry(self._top_mailchimp_EnclosingFrame, width=25)
-        self._top_mailchimp_usernameEntry.place(relx=0.59, rely=0.51, anchor='center')
-        # create a reply to entry
-        self._top_mailchimp_replytoLabel = ttk.Label(self._top_mailchimp_EnclosingFrame, text='reply_to email:')
-        self._top_mailchimp_replytoLabel.place(relx=0.3, rely=0.51, anchor='center')
-        self._top_mailchimp_replytoEntry = ttk.Entry(self._top_mailchimp_EnclosingFrame, width=25)
-        self._top_mailchimp_replytoEntry.place(relx=0.59, rely=0.51, anchor='center')
+        # add server label
+        self._top_mailchimp_serverLabel = ttk.Label(self._top_mailchimp_EnclosingFrame, text='server:')
+        self._top_mailchimp_serverLabel.place(relx=0.32, rely=0.51, anchor='center')
+        # add server entry
+        self._top_mailchimp_serverEntry = ttk.Entry(self._top_mailchimp_EnclosingFrame, width=25)
+        self._top_mailchimp_serverEntry.place(relx=0.59, rely=0.51, anchor='center')
         
         # create a button frame
         self._top_buttonFrame = ttk.Frame(self._topMailchimpWindow_notebook_mailchimp)
@@ -306,8 +325,7 @@ class generate:
     def _top_submit_(self):
         # set username and api key
         self._mailchimp._api_key = self._top_mailchimp_apiEntry.get().strip()
-        self._mailchimp._username = self._top_mailchimp_usernameEntry.get().strip()
-        reply_to = self._top_mailchimp_replytoEntry.get().strip()
+        self._mailchimp._server = self._top_mailchimp_serverEntry.get().strip()
         self._topMailchimpWindow.destroy()
         # setup audience dictionary
         with open(f'_companydeets_{self._campaign.get()}_.data', 'r') as f:
@@ -316,50 +334,72 @@ class generate:
         for line in companydeets:
             line = line.replace("\n", "")
             if line.split(':')[0]=='company':
-                self._mailchimp._audience_creation_dictionary['company'] = line.split(':')[1]
-                self._mailchimp._audience_creation_dictionary['name'] = line.split(':')[1] + "_audience"
+                self._mailchimp._audience_dict['company'] = line.split(':')[1]
+                # self._mailchimp._audience_dict['aud_name'] = line.split(':')[1] + "_audience"
             elif line.split(':')[0]=='address':
-                self._mailchimp._audience_creation_dictionary['address'] = line.split(':')[1]
+                self._mailchimp._audience_dict['address'] = line.split(':')[1]
+            elif line.split(":")[0]=='subject':
+                self._mailchimp._campaign_dict['subject'] = line.split(":")[1]
+            elif line.split(":")[0]=='campaign':
+                self._mailchimp._audience_dict['aud_name'] = line.split(":")[1]
             elif line.split(':')[0]=='city':
-                self._mailchimp._audience_creation_dictionary['city'] = line.split(':')[1]
+                self._mailchimp._audience_dict['city'] = line.split(':')[1]
             elif line.split(':')[0]=='state':
-                self._mailchimp._audience_creation_dictionary['state'] = line.split(':')[1]
+                self._mailchimp._audience_dict['state'] = line.split(':')[1]
             elif line.split(':')[0]=='country':
-                self._mailchimp._audience_creation_dictionary['country'] = line.split(':')[1]
+                self._mailchimp._audience_dict['country'] = line.split(':')[1]
             elif line.split(':')[0]=='zip':
-                self._mailchimp._audience_creation_dictionary['zip'] = line.split(':')[1]
+                self._mailchimp._audience_dict['zip'] = line.split(':')[1]
             elif line.split(':')[0]=='from_name':
-                self._mailchimp._audience_creation_dictionary['from_name'] = line.split(':')[1]
+                self._mailchimp._audience_dict['from_name'] = line.split(':')[1]
             elif line.split(':')[0]=='from_email':
-                self._mailchimp._audience_creation_dictionary['from_email'] = line.split(':')[1]
-
-        self._mailchimp._audience_creation_dictionary['language'] = 'en'
+                self._mailchimp._audience_dict['from_email'] = line.split(':')[1]
         
         # setup client
-        self._mailchimp._set_client()
+        self._mailchimp._setClient()
         # create audience
-        self._mailchimp._createAudience()
+        self._mailchimp._makeAudienceList()
         # set email list
-        self._mailchimp._emaillist = self._dataframe['Email'].to_list()
+        # self._mailchimp._emaillist = self._dataframe['Email'].to_list()
+        datalist = []
+        for item in self._dataframe['Email'].to_list():
+            data = {
+                "email_address":item,
+                "status": "subscribed"
+            }
+            datalist.append(data)
+        
+        print(datalist)
+        
+        self._mailchimp._emaillist = datalist
         # add members
-        self._mailchimp._add_members()
+        self._mailchimp._addEmails()
+        
+        # make campaign dict
+        
         # create campaign
-        self._mailchimp._create_campaign(_name=self._campaign, _reply_to=reply_to)
+        self._mailchimp._create_campaign()
         
         # create a scheduler process
-        def scheduler(day: int, month: int, year: int):
-            if len(str(day))==1:
-                day = "0"+str(day)
-            if len(str(month))==1:
-                month = "0"+str(month)
-            while(True):
-                if datetime.today()==f"{year}-{month}-{day}":
-                    if datetime.now().strftime("%H:%M") == "07:00":
-                        self._mailchimp._send()
+        # def scheduler(day: int, month: int, year: int):
+        #     if len(str(day))==1:
+        #         day = "0"+str(day)
+        #     if len(str(month))==1:
+        #         month = "0"+str(month)
+        #     while(True):
+        #         if datetime.today()==f"{year}-{month}-{day}":
+        #             if datetime.now().strftime("%H:%M") == "07:00":
+        #                 self._mailchimp._send()
+        
         
         # start this for the current campaign
-        process = multiprocessing.Process(target=scheduler, args=(self._schedule_day, self._schedule_month, self._schedule_year))
-        process.start()
+        # process = multiprocessing.Process(target=scheduler, args=(self._schedule_day, self._schedule_month, self._schedule_year))
+        # process.start()
+        ###### using crontab
+        # if self._os != 'Windows':
+        
+        self._mailchimp._sendCampaign(time=f"{self._schedule_year}-{self._schedule_month}-{self._schedule_day}T{self._hour}:{self._minute}:00")
+            
         
     
     def _campaignDeleteButton_(self):
@@ -417,22 +457,26 @@ class generate:
             'ID':len(self._campaignTreeData)+1,
             'Campaigns':self._campaigNameEntry.get().strip()
         }
-        self._campaignDataFrame = self._campaignDataFrame._append(data, ignore_index=True)
+        if self._os=='Windows':
+            self._campaignDataFrame = self._campaignDataFrame.append(data, ignore_index=True)
+        else:
+            self._campaignDataFrame = self._campaignDataFrame._append(data, ignore_index=True)
         
         # save company details
-        self._mailchimp._audience_creation_dictionary['company'] = self._companyNameEntry.get().strip()
-        self._mailchimp._audience_creation_dictionary['address'] = self._companyAddressEntry.get().strip()
-        self._mailchimp._audience_creation_dictionary['city'] = self._companyCityEntry.get().strip()
-        self._mailchimp._audience_creation_dictionary['state'] = self._companyStateEntry.get().strip()
-        self._mailchimp._audience_creation_dictionary['country'] = self._companyCountryEntry.get().strip()
-        self._mailchimp._audience_creation_dictionary['zip'] = self._companyZipEntry.get().strip()
-        self._mailchimp._audience_creation_dictionary['name'] = self._campaigNameEntry.get().strip() + "_audience"
-        self._mailchimp._audience_creation_dictionary['from_name'] = self._fromNameEntry.get().strip()
-        self._mailchimp._audience_creation_dictionary['from_email'] = self._fromEmailEntry.get().strip()
-        self._mailchimp._audience_creation_dictionary['language'] = 'en'
+        self._mailchimp._audience_dict['company'] = self._companyNameEntry.get().strip()
+        self._mailchimp._audience_dict['address'] = self._companyAddressEntry.get().strip()
+        self._mailchimp._audience_dict['city'] = self._companyCityEntry.get().strip()
+        self._mailchimp._audience_dict['state'] = self._companyStateEntry.get().strip()
+        self._mailchimp._audience_dict['country'] = self._companyCountryEntry.get().strip()
+        self._mailchimp._audience_dict['zip'] = self._companyZipEntry.get().strip()
+        self._mailchimp._audience_dict['aud_name'] = self._campaigNameEntry.get().strip() + "_audience"
+        self._mailchimp._audience_dict['from_name'] = self._fromNameEntry.get().strip()
+        self._mailchimp._audience_dict['from_email'] = self._fromEmailEntry.get().strip()
+        self._mailchimp._campaign_dict['subject'] = self._campaignSubjectEntry.get().strip()
         
         with open(f'_companydeets_{self._campaigNameEntry.get().strip()}_.data', 'w') as companydeets:
             companydeets.write("campaign:"+self._campaigNameEntry.get().strip()+"\n")
+            companydeets.write("subject:"+self._campaignSubjectEntry.get().strip()+"\n")
             companydeets.write("company:"+self._companyNameEntry.get().strip()+"\n")
             companydeets.write("address:"+self._companyAddressEntry.get().strip()+"\n")
             companydeets.write("city:"+self._companyCityEntry.get().strip()+"\n")
@@ -450,6 +494,7 @@ class generate:
         self._companyStateEntry.delete(0, 'end')
         self._companyCountryEntry.delete(0, 'end')
         self._companyZipEntry.delete(0, 'end')
+        self._campaignSubjectEntry.delete(0, 'end')
         
         self._saveCompanyDetailsCB = False
         
@@ -510,13 +555,22 @@ class generate:
     
     def _toplevelSubmit_(self):
         ## CANNOT BE EMPTY - FIX IT
-        self._dataframe = self._dataframe._append({
-            'Serial No.':int(self._dataframe['Serial No.'].count())+1,
-            'Name':self._entername_entry.get().strip(),
-            'Email':self._enteremail_entry.get().strip(),
-            'Address':self._enteraddress_entry.get().strip(),
-            'Phone':self._enterphone_entry.get().strip()
-        }, ignore_index=True)
+        if self._os=='Windows':
+            self._dataframe = self._dataframe.append({
+                'Serial No.':int(self._dataframe['Serial No.'].count())+1,
+                'Name':self._entername_entry.get().strip(),
+                'Email':self._enteremail_entry.get().strip(),
+                'Address':self._enteraddress_entry.get().strip(),
+                'Phone':self._enterphone_entry.get().strip()
+            }, ignore_index=True)
+        else:
+            self._dataframe = self._dataframe._append({
+                'Serial No.':int(self._dataframe['Serial No.'].count())+1,
+                'Name':self._entername_entry.get().strip(),
+                'Email':self._enteremail_entry.get().strip(),
+                'Address':self._enteraddress_entry.get().strip(),
+                'Phone':self._enterphone_entry.get().strip()
+            }, ignore_index=True)
         
         self._top.destroy()
         self._dataframe.to_csv('_mailinglist_.csv', index=False)
