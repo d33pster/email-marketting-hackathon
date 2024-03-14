@@ -1,3 +1,6 @@
 mailchimp3
 tk
 tkcalendar
+python-crontab
+pandas
+mailchimp_marketting
