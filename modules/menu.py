@@ -4,16 +4,20 @@
 from tkinter import *
 from tkinter import ttk
 from modules._List import _list
+from modules.session import session
 from modules._mailchimp2 import mailchimp
+from modules.client import client
 import pandas as pd
 from os.path import exists as there
 from os import remove
 from tkcalendar import Calendar
-from datetime import datetime
+import subprocess
 from platform import system as getos
 
 class generate:
     def __init__(self, master: Tk, title: str):
+        # create session
+        self._session = session()
         self._os = getos()
         self.parent = master
         # title
@@ -51,6 +55,9 @@ class generate:
         
         # create mailchimp object
         self._mailchimp = mailchimp()
+        
+        #client
+        self._client = client()
     
     def _reinitialize(self):
         for widget in self._EnclosingFrame.winfo_children():
@@ -95,12 +102,14 @@ class generate:
         self._Campaigns = ttk.Frame(self._notebook)
         self._Schedule = ttk.Frame(self._notebook)
         self._Performance = ttk.Frame(self._notebook)
+        self._Chat = ttk.Frame(self._notebook)
         
         # add them in notebook
         self._notebook.add(self._Campaigns, text='Campaigns')
         self._notebook.add(self._MailingList, text='Mailing List')
         self._notebook.add(self._Schedule, text='Schedule')
         self._notebook.add(self._Performance, text='Performance')
+        self._notebook.add(self._Chat, text='Team Chat')
         
         ### Mailing List ###
         self._MLEnclosingFrame = ttk.Frame(self._MailingList)
@@ -248,7 +257,7 @@ class generate:
         self._schedule_label.place(relx=0.13, rely=0.25, anchor='center')
         self._calendar = Calendar(self._scheduleFirstFrame, selectmode='day', year=2024, month=3, day=4, bordercolor='black', selectforeground='red', foreground='black', background='white')
         self._calendar.place(relx=0.25, rely=0.5, anchor='center')
-        
+    
         # create time selector        
         # month
         self._hour = StringVar()
@@ -273,6 +282,143 @@ class generate:
         self._scheduleButton = ttk.Button(self._scheduleButtonFrame, text='Schedule', command=self._schedule_, default='active')
         self._scheduleButton.pack(side=RIGHT)
         ### schedule END ###
+        
+        self._setChat_loginscreen()
+    
+    def _setChat_loginscreen(self):
+        ## TEAM CHAT ##
+        # en frame
+        self._chatEnF = ttk.Frame(self._Chat)
+        self._chatEnF.pack(fill=BOTH, expand=True)
+        
+        # notebook for login/resgister
+        self._login_nb = ttk.Notebook(self._chatEnF)
+        self._login_nb.pack(fill=BOTH, expand=True)
+        
+        self._loginF = ttk.Frame(self._login_nb)
+        self._registerF = ttk.Frame(self._login_nb)
+        
+        self._login_nb.add(self._registerF, text='register')
+        self._login_nb.add(self._loginF, text='login')
+        
+        # register screen
+        self._registerEN = ttk.Frame(self._registerF, relief='groove')
+        self._registerEN.pack(fill=BOTH, expand=True)
+        
+        self._namelabel = ttk.Label(self._registerEN, text='Name:')
+        self._nameentry = ttk.Entry(self._registerEN, width=25)
+        self._usernameentry = ttk.Entry(self._registerEN, width=25)
+        self._usernameLabel = ttk.Label(self._registerEN, text='Username:')
+        self._passwordlabel = ttk.Label(self._registerEN, text='Password:')
+        self._passwordEntry = ttk.Entry(self._registerEN, width=25)
+        
+        self._namelabel.place(anchor='center', relx=0.26, rely=0.1)
+        self._nameentry.place(anchor='center', relx=0.55, rely=0.1)
+        self._usernameLabel.place(anchor='center', relx=0.23, rely=0.19)
+        self._usernameentry.place(anchor='center', relx=0.55, rely=0.19)
+        self._passwordlabel.place(anchor='center', relx=0.23, rely=0.28)
+        self._passwordEntry.place(anchor='center', relx=0.55, rely=0.28)
+        
+        self._registerbutton = ttk.Button(self._registerEN, text='register', default='active', command=self._registerbutton_)
+        self._registerbutton.place(anchor='center', relx=0.5, rely=0.46)
+        
+        self._regStatus = StringVar()
+        self._registerStatus = Label(self._registerEN, textvariable=self._regStatus, font=('Courier', 16), fg='green')
+        self._registerStatus.place(anchor='center', relx=0.5, rely=0.64)
+        ## REGISTER END ##
+        
+        ## login screen
+        self._loginEN = ttk.Frame(self._loginF, relief='groove')
+        self._loginEN.pack(fill=BOTH, expand=True)
+        
+        self._userLabel = ttk.Label(self._loginEN, text='username:')
+        self._userentry = ttk.Entry(self._loginEN, width=25)
+        self._passlabel = ttk.Label(self._loginEN, text='password:')
+        self._passentry = ttk.Entry(self._loginEN, width=25)
+        
+        self._userLabel.place(anchor='center', relx=0.23, rely=0.19)
+        self._userentry.place(anchor='center', relx=0.55, rely=0.19)
+        self._passlabel.place(anchor='center', relx=0.23, rely=0.28)
+        self._passentry.place(anchor='center', relx=0.55, rely=0.28)
+        
+        self._loginbutton = ttk.Button(self._loginEN, text='login', default='active', command=self._loginbutton_)
+        self._loginbutton.place(anchor='center', relx=0.5, rely=0.46)
+        
+        self._logStatus = StringVar()
+        self._loginStatus = Label(self._loginEN, textvariable=self._logStatus, font=('Courier', 16))
+        self._loginStatus.place(anchor='center', relx=0.5, rely=0.64)
+        
+        ## login END ##
+    
+    def _loginbutton_(self):
+        status = self._session._login(self._userentry.get().strip(), self._passentry.get().strip())
+        if status == 'usernotfound':
+            self._logStatus.set('User not found.')
+        elif status == 'passerror':
+            self._logStatus.set('Password Incorrect')
+        elif status == 'allgood':
+            self._logStatus.set('Login Successfull!')
+        
+        self._loginStatus.after(5000, self._resetLoginStatus)
+    
+    def _resetLoginStatus(self):
+        self._logStatus.set('')
+        # login
+        self._chatlogin()
+    
+    def _registerbutton_(self):
+        self._session._register(self._nameentry.get().strip(), self._usernameentry.get().strip(), self._passwordEntry.get().strip())
+        self._regStatus.set('Register Successful!')
+        print(self._session.sessionusername, self._session._session)
+        self._registerStatus.after(5000, self._resetRegisterStatus)
+    
+    def _resetRegisterStatus(self):
+        self._regStatus.set('')
+        # login
+        self._chatlogin()
+    
+    def _chatlogin(self):
+        for widget in self._chatEnF.winfo_children():
+            widget.destroy()
+        self._registerStatus.destroy()
+        self._loginStatus.destroy()
+        
+        # chats:
+        with open('chat.bak', 'r') as chats:
+            self._chats = chats.readlines()
+        
+        self._screen = ttk.Frame(self._chatEnF)
+        self._screen.pack(expand=True, fill=BOTH)
+        self._sendmessageFrame = ttk.Frame(self._Chat)
+        self._sendmessageFrame.pack(fill=BOTH)
+        self._sendmessageLabel = ttk.Label(self._sendmessageFrame, text='message:')
+        self._sendmessageLabel.pack(side=LEFT)
+        self._sendmessage_entryVar = StringVar()
+        self._sendmessageEntry = ttk.Entry(self._sendmessageFrame, width=43, textvariable=self._sendmessage_entryVar)
+        self._sendmessagebutton = ttk.Button(self._sendmessageFrame, text='send', default='active', command=self._sendmessage_)
+        self._sendmessagebutton.pack(side=RIGHT)
+        self._sendmessageEntry.pack(side=RIGHT)
+
+        self._chatscreen = Listbox(self._screen, bg='white', fg='black', highlightcolor='white', highlightthickness=0, selectbackground='white', selectforeground='black', activestyle=NONE)
+        self._scrollbar = ttk.Scrollbar(self._chatscreen)
+        
+        self._chatscreen.config(yscrollcommand=self._scrollbar.set)
+        self._scrollbar.config(command=self._chatscreen.yview)
+        self._scrollbar.pack(side=RIGHT, fill=Y)
+        self._chatscreen.pack(expand=True, fill=BOTH)
+        
+        for chat in self._chats:
+            chat = chat.replace('\n', '')
+            self._chatscreen.insert(END, chat)
+            self._chatscreen.yview_moveto(1)
+        
+    def _sendmessage_(self):
+        user = self._session.sessionusername
+        message = self._sendmessageEntry.get().strip()
+        self._chatscreen.insert(END, f'@{user}: {message}')
+        self._chatscreen.yview_moveto(1)
+        self._client._connect(f'@{user}:{message}')
+        self._sendmessage_entryVar.set('')
     
     def _schedule_(self):
         # get date
