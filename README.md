@@ -47,11 +47,38 @@ We are not looking for the team to build the email sending technology itself. Th
 
 #### Design
 ###### <p align='center'>Tabs</p>
-<img src='images/_campaigns_tab_.png'>
-<img src='images/_mailinglist_tab_.png'>
-<img src='images/_schedule_tab_.png'>
+<p id="ctab"><img src='images/_campaigns_tab_.png'></p>
+<p id="mtab"><img src='images/_mailinglist_tab_.png'></p>
+<p id="stab"><img src='images/_schedule_tab_.png'></p>
+<p id="chat1"><img src='images/team_chat_register.png'></p>
+<p id="chat2"><img src='images/team_chat_login.png'></p>
 
-###### <p align='center'>Campaigns Tab</p>
-No Campaigns
-<img src='images/_campaigns_nodata_.png'>
-Add Campaign
+###### <p align='center'>Steps</p>
+
+1. Add Campaign  [<a href='#ctab'>Campaign Tab</a>]
+2. Add Mailing List  [<a href="#mtab">Mailing List Tab</a>]
+3. Schedule the campaign  [<a href="#stab">Schedule Tab</a>]
+4. Enter the mailchimp API and Sever-info(last part of api; example: us8, us1) when asked by popup
+
+###### <p align='center'>How to Run</p>
+
+```console
+## for unix/Linux based systems
+
+## in the terminal run:
+$ chmod a+x ./main.py
+$ ./main.py
+
+## if you want to simulate team chat, open two more terminal
+
+## in the second terminal, run:
+$ chmod a+x ./server.py; ./server.py
+
+## in the third terminal run:
+$ ./main.py
+```
+- Minimize all the terminals.
+- In the two instances of the app that is opened, go to team chat tab [<a href='#chat1'>Team Chat Tab</a>] and register as a user.<br>
+ps. registering will log u in
+- type and send a message.
+- Repeat with the other instance.
